@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chocolates Tutoring | Academic & Practice Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        zinc: {
+                            950: '#000000',
+                            900: '#121215',
+                            850: '#18181b',
+                            800: '#27272a',
+                            700: '#3f3f46'
+                        },
+                        accent: {
+                            cyan: '#00f0ff',
+                            glow: 'rgba(0, 240, 255, 0.15)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #000000; color: #f4f4f5; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
+        .glow-box { box-shadow: 0 0 30px rgba(0, 240, 255, 0.05); }
+        .glow-box:hover { box-shadow: 0 0 35px rgba(0, 240, 255, 0.15); }
+        .glow-text { text-shadow: 0 0 20px rgba(0, 240, 255, 0.4); }
+        /* Native Fullscreen API styling */
+        #modalIframeWrapper:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        #modalIframeWrapper:-webkit-full-screen {
+            width: 100vw;
+            height: 100vh;
+            background: #000000;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-accent-cyan selection:text-black">
+
+    <!-- Cyberpunk Intro Boot Screen Animation -->
+    <div id="introLoader" class="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center transition-opacity duration-700">
+        <div class="relative z-10 flex flex-col items-center space-y-6 max-w-sm w-full px-4 text-center">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-cyan to-zinc-900 flex items-center justify-center glow-box border border-accent-cyan/40 animate-pulse">
+                <i class="fa-solid fa-graduation-cap text-black text-4xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-wider text-white glow-text">CHOCOLATES TUTORING</h1>
+                <p class="text-xs text-zinc-400 mt-1 font-medium tracking-widest uppercase">Initializing Secure Arcade Portal...</p>
+            </div>
+            <div class="w-full max-w-xs h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
+                <div id="introProgressBar" class="h-full bg-accent-cyan w-0 transition-all duration-300 shadow-[0_0_10px_#00f0ff]"></div>
+            </div>
+            <div id="introStatusText" class="text-xs text-zinc-500 font-mono">Loading assets (0%)...</div>
+        </div>
+    </div>
+
+    <header class="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-zinc-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer group" onclick="returnToHome()">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-cyan to-zinc-900 flex items-center justify-center glow-box border border-accent-cyan/30 group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-graduation-cap text-black text-2xl font-black"></i>
+                </div>
+                <div>
+                    <span class="text-2xl font-extrabold tracking-tight glow-text text-white">CHOCOLATES TUTORING</span>
+                    <span class="block text-xs text-zinc-400 font-medium tracking-wider">PRACTICE & STUDY PORTAL • 100+ GAMES</span>
+                </div>
+            </div>
+
+            <!-- Instant Search Bar -->
+            <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-zinc-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="searchInput" oninput="filterGames()" placeholder="Search Retro Bowl, Papa's Freezeria, Slope, Moto X3M..." class="w-full pl-11 pr-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-accent-cyan transition-all text-zinc-200 placeholder-zinc-500">
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleStealthMode()" id="stealthBtn" class="flex items-center space-x-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-xs font-semibold tracking-wide transition-all text-zinc-300 hover:text-white" title="Press ~ to quick cloak">
+                    <i class="fa-solid fa-user-secret text-accent-cyan text-base"></i>
+                    <span class="hidden sm:inline">Classroom Cloak (~)</span>
+                </button>
+                <button onclick="openRequestModal()" class="flex items-center space-x-2 px-4 py-2 bg-accent-cyan hover:bg-accent-cyan/90 rounded-xl text-xs font-bold tracking-wide transition-all text-black shadow-lg shadow-accent-cyan/10">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span class="hidden sm:inline">Request Game</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Hero Banner -->
+        <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border border-zinc-800 p-8 sm:p-12 glow-box mb-10">
+            <div class="absolute -right-10 -bottom-10 w-80 h-80 bg-accent-cyan/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10 max-w-2xl space-y-4">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 bg-accent-cyan/10 border border-accent-cyan/30 rounded-full text-accent-cyan text-xs font-bold uppercase tracking-wider">
+                    <span class="w-2 h-2 rounded-full bg-accent-cyan animate-ping"></span>
+                    <span>100+ Direct Popular Games • Native Fullscreen (ESC to exit)</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+                    Advanced Interactive Practice & Logic Arcade
+                </h1>
+                <p class="text-zinc-400 text-sm sm:text-base">
+                    Welcome to Chocolates Tutoring! Access over 100+ fully embedded direct games featuring multi-mirror fail-safes and true native fullscreen. Press <kbd class="px-1.5 py-0.5 bg-zinc-900 text-accent-cyan rounded border border-zinc-800">~</kbd> to disguise as Google Classroom.
+                </p>
+                <div class="flex flex-wrap gap-3 pt-2">
+                    <button onclick="launchGame('retrobowl')" class="px-6 py-3 bg-accent-cyan hover:bg-accent-cyan/90 text-black font-extrabold rounded-xl text-sm transition-all shadow-lg shadow-accent-cyan/20 flex items-center space-x-2">
+                        <i class="fa-solid fa-football"></i>
+                        <span>Play Retro Bowl Now</span>
+                    </button>
+                    <button onclick="scrollToGames()" class="px-6 py-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-semibold rounded-xl text-sm transition-all">
+                        Browse All 100+ Games
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Filter Bar -->
+        <div class="flex items-center space-x-2 overflow-x-auto pb-4 scrollbar-none" id="categoryContainer">
+            <button onclick="filterCategory('all')" class="cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-accent-cyan text-black whitespace-nowrap shadow-md">All Games</button>
+            <button onclick="filterCategory('Action')" class="cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-zinc-900 hover:bg-zinc-800 text-zinc-300 whitespace-nowrap border border-zinc-800">Action</button>
+            <button onclick="filterCategory('Sports')" class="cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-zinc-900 hover:bg-zinc-800 text-zinc-300 whitespace-nowrap border border-zinc-800">Sports</button>
+            <button onclick="filterCategory('IO')" class="cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-zinc-900 hover:bg-zinc-800 text-zinc-300 whitespace-nowrap border border-zinc-800">.IO Games</button>
+            <button onclick="filterCategory('Puzzle')" class="cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-zinc-900 hover:bg-zinc-800 text-zinc-300 whitespace-nowrap border border-zinc-800">Puzzle</button>
+            <button onclick="filterCategory('Racing')" class="cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-zinc-900 hover:bg-zinc-800 text-zinc-300 whitespace-nowrap border border-zinc-800">Racing</button>
+            <button onclick="filterCategory('Arcade')" class="cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-zinc-900 hover:bg-zinc-800 text-zinc-300 whitespace-nowrap border border-zinc-800">Arcade</button>
+        </div>
+
+        <!-- Games Grid -->
+        <div class="space-y-4 mt-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-zinc-100 flex items-center space-x-2">
+                    <i class="fa-solid fa-graduation-cap text-accent-cyan"></i>
+                    <span>Library of 100+ Popular Games</span>
+                </h2>
+                <span id="gameCount" class="text-xs text-zinc-400 font-medium">Showing all games</span>
+            </div>
+            <div id="gamesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Game Modal -->
+    <div id="gameModal" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-md hidden flex flex-col p-2 sm:p-6 transition-all duration-300">
+        <!-- Native Fullscreen Wrapper Container -->
+        <div id="modalIframeWrapper" class="flex-1 max-w-7xl w-full mx-auto bg-zinc-900 rounded-3xl border border-zinc-800 overflow-hidden relative glow-box flex flex-col transition-all duration-300">
+            
+            <!-- Modal Header Bar -->
+            <div id="modalHeaderBar" class="w-full flex flex-col sm:flex-row items-center justify-between bg-zinc-900 px-6 py-4 border-b border-zinc-800 gap-4 shrink-0">
+                <div class="flex items-center space-x-3 cursor-pointer group" onclick="closeGameModal()">
+                    <div class="w-10 h-10 rounded-xl bg-accent-cyan/10 group-hover:bg-accent-cyan group-hover:text-black flex items-center justify-center text-accent-cyan transition-all border border-accent-cyan/30">
+                        <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-white group-hover:text-accent-cyan transition-colors">CHOCOLATES TUTORING</h2>
+                        <p id="modalGameTitle" class="text-xs text-zinc-400 font-medium">Loading Game...</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <div class="flex items-center bg-zinc-950 border border-zinc-800 rounded-xl p-1">
+                        <span class="text-xs text-zinc-400 font-semibold px-2">Mirror:</span>
+                        <button id="mirrorBtn1" onclick="switchMirror(0)" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-accent-cyan text-black">1</button>
+                        <button id="mirrorBtn2" onclick="switchMirror(1)" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white">2</button>
+                        <button id="mirrorBtn3" onclick="switchMirror(2)" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white">3</button>
+                    </div>
+                    <button onclick="reloadActiveGame()" class="flex items-center space-x-2 px-4 py-2 bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-xs font-bold text-zinc-300 transition-all">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span class="hidden sm:inline">Reload</span>
+                    </button>
+                    <!-- Native Fullscreen Toggle Button -->
+                    <button onclick="toggleNativeFullScreen()" id="fullscreenToggleBtn" class="flex items-center space-x-2 px-4 py-2 bg-accent-cyan/20 hover:bg-accent-cyan/30 border border-accent-cyan/50 text-accent-cyan rounded-xl text-xs font-bold transition-all" title="Toggle Native Fullscreen (ESC to exit)">
+                        <i class="fa-solid fa-expand" id="fullscreenIcon"></i>
+                        <span id="fullscreenText" class="hidden sm:inline">Fullscreen</span>
+                    </button>
+                    <button onclick="closeGameModal()" class="w-10 h-10 bg-zinc-950 hover:bg-red-500/20 border border-zinc-800 hover:border-red-500 text-zinc-400 hover:text-red-400 rounded-xl flex items-center justify-center transition-all text-lg" title="Return to Menu">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Iframe Container -->
+            <div class="flex-1 w-full bg-black relative flex items-center justify-center overflow-hidden">
+                <iframe id="gameIframe" src="" class="w-full h-full border-0 bg-black" allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope; clipboard-write; payment" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen="true" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"></iframe>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Request Game Modal -->
+    <div id="requestModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-md w-full p-6 space-y-6 glow-box relative">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-accent-cyan/10 flex items-center justify-center text-accent-cyan">
+                        <i class="fa-solid fa-paper-plane text-lg"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-zinc-100">Request a Game</h3>
+                </div>
+                <button onclick="closeRequestModal()" class="text-zinc-400 hover:text-white transition-all text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form id="gameRequestForm" onsubmit="submitGameRequest(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1 uppercase tracking-wider">Your Nickname</label>
+                    <input type="text" id="reqStudentName" required placeholder="e.g., Alex" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-accent-cyan text-zinc-200 placeholder-zinc-600">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-400 mb-1 uppercase tracking-wider">Game Title</label>
+                    <input type="text" id="reqGameTitle" required placeholder="e.g., Smash Karts, Happy Wheels" class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-sm focus:outline-none focus:border-accent-cyan text-zinc-200 placeholder-zinc-600">
+                </div>
+                <button type="submit" id="requestSubmitBtn" class="w-full py-3 bg-accent-cyan hover:bg-accent-cyan/90 text-black font-bold rounded-xl text-sm transition-all shadow-lg shadow-accent-cyan/20 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                    <span>Send Request to Admin</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-32 opacity-0 transition-all duration-300 bg-zinc-900 border border-accent-cyan/50 text-zinc-100 px-6 py-4 rounded-2xl shadow-2xl flex items-center space-x-3">
+        <i class="fa-solid fa-circle-check text-accent-cyan text-xl"></i>
+        <div>
+            <h4 id="toastTitle" class="text-sm font-bold">Success</h4>
+            <p id="toastMessage" class="text-xs text-zinc-400">Action completed successfully.</p>
+        </div>
+    </div>
+
+    <footer class="mt-auto border-t border-zinc-800 bg-black py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-zinc-500 space-y-2">
+            <p>Chocolates Tutoring &copy; 2026 | Verified Unblocked Practice Arcade</p>
+            <p class="text-zinc-600">Press the <kbd class="px-1.5 py-0.5 bg-zinc-900 text-zinc-300 rounded border border-zinc-800">~</kbd> key anytime to instantly toggle Google Classroom Cloak.</p>
+        </div>
+    </footer>
+
+    <script>
+        const games = [
+            {
+                id: 'retrobowl', title: 'Retro Bowl', category: 'Sports', rating: '4.9', plays: '950K', icon: 'fa-football', desc: 'American football franchise and passing management.',
+                mirrors: ['https://kbhgames.com/game/retro-bowl', 'https://retrobowl.me/', 'https://edclub.github.io/retro-bowl/']
+            },
+            {
+                id: 'slope', title: 'Slope', category: 'Action', rating: '4.9', plays: '890K', icon: 'fa-triangle-exclamation', desc: 'Guide your neon ball down an endless 3D running slope.',
+                mirrors: ['https://kbhgames.com/game/slope', 'https://slope-game.github.io/', 'https://math-vuls.github.io/slope/']
+            },
+            {
+                id: 'motox3m', title: 'Moto X3M', category: 'Racing', rating: '4.8', plays: '740K', icon: 'fa-motorcycle', desc: 'Perform epic motorbike stunts across challenging tracks.',
+                mirrors: ['https://kbhgames.com/game/moto-x3m', 'https://html5.gamedistribution.com/rvvASMiM/moto-x3m/', 'https://ubg98.github.io/motox3m/']
+            },
+            {
+                id: 'cookieclicker', title: 'Cookie Clicker', category: 'Puzzle', rating: '4.9', plays: '1.2M', icon: 'fa-cookie-bite', desc: 'Bake trillions of cookies and build an automated empire.',
+                mirrors: ['https://kbhgames.com/game/cookie-clicker', 'https://orteil.dashnet.org/cookieclicker/', 'https://cookie-clicker.co/']
+            },
+            {
+                id: 'onevone', title: '1v1.lol', category: 'Action', rating: '4.8', plays: '880K', icon: 'fa-crosshairs', desc: 'Practice building defensive walls and combat reflexes.',
+                mirrors: ['https://kbhgames.com/game/1v1-lol', 'https://1v1.lol/', 'https://1v1.netlify.app/']
+            },
+            {
+                id: 'tunnelrush', title: 'Tunnel Rush', category: 'Arcade', rating: '4.7', plays: '620K', icon: 'fa-rotate', desc: 'Speed through a dizzying 3D rotating tunnel of obstacles.',
+                mirrors: ['https://kbhgames.com/game/tunnel-rush', 'https://tunnelrush.io/', 'https://ubg33.github.io/tunnelrush/']
+            },
+            {
+                id: 'paperio', title: 'Paper.io 2', category: 'IO', rating: '4.8', plays: '790K', icon: 'fa-square', desc: 'Capture territory, claim land blocks, and outsmart rivals.',
+                mirrors: ['https://kbhgames.com/game/paper-io-2', 'https://paper-io.com/', 'https://paperio2.org/']
+            },
+            {
+                id: 'geometrydash', title: 'Geometry Dash', category: 'Action', rating: '4.9', plays: '910K', icon: 'fa-cube', desc: 'Jump and fly through dangerous neon spikes in rhythm.',
+                mirrors: ['https://kbhgames.com/game/geometry-dash', 'https://ubg98.github.io/geometrydash/', 'https://geometrydash.io/']
+            },
+            {
+                id: 'basketballlegends', title: 'Basketball Legends', category: 'Sports', rating: '4.8', plays: '670K', icon: 'fa-basketball', desc: 'Play arcade basketball matches with legendary players.',
+                mirrors: ['https://kbhgames.com/game/basketball-legends', 'https://basketballlegends.io/', 'https://ubg98.github.io/basketball-legends/']
+            },
+            {
+                id: 'subwaysurfers', title: 'Subway Surfers', category: 'Action', rating: '4.9', plays: '1.5M', icon: 'fa-train-subway', desc: 'Dash, dodge trains, and escape the inspector.',
+                mirrors: ['https://kbhgames.com/game/subway-surfers', 'https://poki.com/en/g/subway-surfers', 'https://subwaysurfers.me/']
+            },
+            {
+                id: 'shellshockers', title: 'Shell Shockers', category: 'IO', rating: '4.8', plays: '830K', icon: 'fa-egg', desc: 'First-person multiplayer egg shooter with intense action.',
+                mirrors: ['https://kbhgames.com/game/shell-shockers', 'https://shellshock.io/', 'https://shellshockers.co/']
+            },
+            {
+                id: 'bloxdio', title: 'Bloxd.io', category: 'IO', rating: '4.9', plays: '940K', icon: 'fa-cubes', desc: 'Voxel sandbox multiplayer game with parkour and survival.',
+                mirrors: ['https://kbhgames.com/game/bloxd-io', 'https://bloxd.io/', 'https://bloxdio.org/']
+            },
+            {
+                id: 'smashkarts', title: 'Smash Karts', category: 'Action', rating: '4.9', plays: '910K', icon: 'fa-car-burst', desc: 'Multiplayer 3D kart battle game with weapons.',
+                mirrors: ['https://kbhgames.com/game/smash-karts', 'https://smashkarts.io/', 'https://smashkarts.gg/']
+            },
+            {
+                id: 'basketrandom', title: 'Basket Random', category: 'Sports', rating: '4.7', plays: '510K', icon: 'fa-basketball', desc: 'Wacky physics-based 2-player basketball game.',
+                mirrors: ['https://kbhgames.com/game/basket-random', 'https://basketrandom.io/', 'https://ubg98.github.io/basket-random/']
+            },
+            {
+                id: 'ovo', title: 'OvO', category: 'Action', rating: '4.9', plays: '820K', icon: 'fa-person-running', desc: 'Parkour platformer with smooth momentum and jumps.',
+                mirrors: ['https://kbhgames.com/game/ovo', 'https://ovogame.io/', 'https://ubg33.github.io/ovo/']
+            },
+            {
+                id: 'vex7', title: 'Vex 7', category: 'Action', rating: '4.9', plays: '890K', icon: 'fa-person-falling-burst', desc: 'Deadly traps, parkour moves, and action obstacles.',
+                mirrors: ['https://kbhgames.com/game/vex-7', 'https://html5.gamedistribution.com/rvvASMiM/vex-7/', 'https://vex7.io/']
+            },
+            {
+                id: 'ducklife', title: 'Duck Life', category: 'Puzzle', rating: '4.8', plays: '480K', icon: 'fa-feather', desc: 'Train your duck in running, swimming, and flying.',
+                mirrors: ['https://kbhgames.com/game/duck-life', 'https://ducklife.io/', 'https://math-vuls.github.io/ducklife/']
+            },
+            {
+                id: 'happywheels', title: 'Happy Wheels', category: 'Action', rating: '4.9', plays: '1.1M', icon: 'fa-wheelchair', desc: 'Classic physics obstacle course and vehicle platformer.',
+                mirrors: ['https://kbhgames.com/game/happy-wheels', 'https://totaljerkface.com/happy_wheels.tjh', 'https://happywheels.io/']
+            },
+            {
+                id: 'run3', title: 'Run 3', category: 'Action', rating: '4.8', plays: '760K', icon: 'fa-person-running', desc: 'Run through tunnels in space avoiding empty space gaps.',
+                mirrors: ['https://kbhgames.com/game/run-3', 'https://run3.io/', 'https://math-vuls.github.io/run3/']
+            },
+            {
+                id: 'drivemad', title: 'Drive Mad', category: 'Racing', rating: '4.8', plays: '620K', icon: 'fa-truck', desc: 'Physics-based car driving puzzle challenge.',
+                mirrors: ['https://kbhgames.com/game/drive-mad', 'https://drivemad.io/', 'https://ubg98.github.io/drive-mad/']
+            },
+            {
+                id: 'drifthunters', title: 'Drift Hunters', category: 'Racing', rating: '4.9', plays: '890K', icon: 'fa-car', desc: 'Customize cars and perform massive drifts on tracks.',
+                mirrors: ['https://kbhgames.com/game/drift-hunters', 'https://drifthunters.io/', 'https://ubg33.github.io/drifthunters/']
+            },
+            {
+                id: 'stickmanhook', title: 'Stickman Hook', category: 'Arcade', rating: '4.8', plays: '810K', icon: 'fa-anchor', desc: 'Swing through levels with your grappling hook physics.',
+                mirrors: ['https://kbhgames.com/game/stickman-hook', 'https://html5.gamedistribution.com/rvvASMiM/stickman-hook/', 'https://stickmanhook.io/']
+            },
+            {
+                id: 'fireboywatergirl', title: 'Fireboy & Watergirl', category: 'Puzzle', rating: '4.9', plays: '980K', icon: 'fa-fire', desc: 'Cooperative temple puzzle platformer.',
+                mirrors: ['https://kbhgames.com/game/fireboy-and-watergirl', 'https://fireboyandwatergirl.io/', 'https://fireboy-watergirl.co/']
+            },
+            {
+                id: 'voxiomio', title: 'Voxiom.io', category: 'IO', rating: '4.7', plays: '430K', icon: 'fa-cube', desc: 'Real-time 3D voxel shooter and building game.',
+                mirrors: ['https://kbhgames.com/game/voxiom-io', 'https://voxiom.io/', 'https://voxiomio.org/']
+            },
+            {
+                id: 'evio', title: 'Ev.io', category: 'IO', rating: '4.8', plays: '540K', icon: 'fa-shield-halved', desc: 'Futuristic browser FPS multiplayer combat.',
+                mirrors: ['https://kbhgames.com/game/ev-io', 'https://ev.io/', 'https://evio.games/']
+            },
+            {
+                id: 'templerun', title: 'Temple Run', category: 'Action', rating: '4.9', plays: '1.3M', icon: 'fa-monument', desc: 'Escape the temple monster in the legendary runner.',
+                mirrors: ['https://kbhgames.com/game/temple-run', 'https://poki.com/en/g/temple-run-2', 'https://templerun.me/']
+            },
+            {
+                id: 'pacman', title: 'Pac-Man', category: 'Arcade', rating: '4.9', plays: '1.4M', icon: 'fa-ghost', desc: 'Eat dots and avoid colorful ghosts in the retro maze.',
+                mirrors: ['https://kbhgames.com/game/pac-man', 'https://www.google.com/logos/2010/pacman10-i.html', 'https://pacman.live/']
+            },
+            {
+                id: 'tetris', title: 'Tetris', category: 'Puzzle', rating: '4.9', plays: '1.6M', icon: 'fa-shapes', desc: 'Clear falling block lines in the classic puzzle game.',
+                mirrors: ['https://kbhgames.com/game/tetris', 'https://tetris.com/play-tetris', 'https://tetris.me/']
+            },
+            {
+                id: 'twothousandfortyeight', title: '2048', category: 'Puzzle', rating: '4.8', plays: '920K', icon: 'fa-hashtag', desc: 'Combine numbers to reach the legendary 2048 tile.',
+                mirrors: ['https://kbhgames.com/game/2048', 'https://play2048.co/', 'https://2048game.com/']
+            },
+            {
+                id: 'flappybird', title: 'Flappy Bird', category: 'Arcade', rating: '4.8', plays: '1.1M', icon: 'fa-dove', desc: 'Tap to fly your bird through tricky green pipe gaps.',
+                mirrors: ['https://kbhgames.com/game/flappy-bird', 'https://flappybird.io/', 'https://flappybird.me/']
+            },
+            {
+                id: 'basketballstars', title: 'Basketball Stars', category: 'Sports', rating: '4.8', plays: '710K', icon: 'fa-basketball', desc: '1v1 and 2v2 basketball tournament challenge.',
+                mirrors: ['https://kbhgames.com/game/basketball-stars', 'https://basketballstars.io/', 'https://ubg98.github.io/basketball-stars/']
+            },
+            {
+                id: 'soccerrandom', title: 'Soccer Random', category: 'Sports', rating: '4.7', plays: '490K', icon: 'fa-futbol', desc: 'Wacky physics-based soccer match simulator.',
+                mirrors: ['https://kbhgames.com/game/soccer-random', 'https://soccerrandom.io/', 'https://ubg98.github.io/soccer-random/']
+            },
+            {
+                id: 'boxingrandom', title: 'Boxing Random', category: 'Sports', rating: '4.7', plays: '460K', icon: 'fa-hand-fist', desc: 'Unpredictable ragdoll physics boxing matches.',
+                mirrors: ['https://kbhgames.com/game/boxing-random', 'https://boxingrandom.io/', 'https://ubg98.github.io/boxing-random/']
+            },
+            {
+                id: 'volleyrandom', title: 'Volley Random', category: 'Sports', rating: '4.7', plays: '420K', icon: 'fa-volleyball', desc: 'Wacky volleyball game with random physics mutators.',
+                mirrors: ['https://kbhgames.com/game/volley-random', 'https://volleyrandom.io/', 'https://ubg98.github.io/volley-random/']
+            },
+            {
+                id: 'rooftopsnipers', title: 'Rooftop Snipers', category: 'Action', rating: '4.8', plays: '680K', icon: 'fa-crosshairs', desc: 'Knock your opponent off the roof with precise shots.',
+                mirrors: ['https://kbhgames.com/game/rooftop-snipers', 'https://rooftopsnipers.io/', 'https://ubg98.github.io/rooftop-snipers/']
+            },
+            {
+                id: 'getawayshootout', title: 'Getaway Shootout', category: 'Action', rating: '4.8', plays: '630K', icon: 'fa-car-side', desc: 'Race to the getaway vehicle while shooting rivals.',
+                mirrors: ['https://kbhgames.com/game/getaway-shootout', 'https://getawayshootout.io/', 'https://ubg98.github.io/getaway-shootout/']
+            },
+            {
+                id: 'narrowone', title: 'Narrow One', category: 'Action', rating: '4.8', plays: '550K', icon: 'fa-bow-arrow', desc: 'Multiplayer medieval castle archery battle.',
+                mirrors: ['https://kbhgames.com/game/narrow-one', 'https://narrowone.io/', 'https://narrow-one.co/']
+            },
+            {
+                id: 'krunker', title: 'Krunker.io', category: 'IO', rating: '4.9', plays: '1.7M', icon: 'fa-gun', desc: 'Fast-paced pixelated multiplayer FPS action.',
+                mirrors: ['https://kbhgames.com/game/krunker-io', 'https://krunker.io/', 'https://unblocked-games.s3.amazonaws.com/krunker.html']
+            },
+            {
+                id: 'zombsroyale', title: 'Zombs Royale', category: 'IO', rating: '4.8', plays: '980K', icon: 'fa-skull', desc: 'Battle royale 2D survival shooter.',
+                mirrors: ['https://kbhgames.com/game/zombs-royale', 'https://zombsroyale.io/', 'https://zombsroyale.me/']
+            },
+            {
+                id: 'agario', title: 'Agar.io', category: 'IO', rating: '4.9', plays: '2.1M', icon: 'fa-circle', desc: 'Eat smaller cells and grow your giant blob.',
+                mirrors: ['https://kbhgames.com/game/agar-io', 'https://agar.io/', 'https://agar.biz/']
+            },
+            {
+                id: 'slitherio', title: 'Slither.io', category: 'IO', rating: '4.9', plays: '2.4M', icon: 'fa-worm', desc: 'Grow your glowing snake by eating glowing dots.',
+                mirrors: ['https://kbhgames.com/game/slither-io', 'https://slither.io/', 'https://slitherio.org/']
+            },
+            {
+                id: 'wormateio', title: 'Wormate.io', category: 'IO', rating: '4.7', plays: '610K', icon: 'fa-candy-cane', desc: 'Multiplayer worm game with sweet candies and boosts.',
+                mirrors: ['https://kbhgames.com/game/wormate-io', 'https://wormate.io/', 'https://wormate.me/']
+            },
+            {
+                id: 'holeio', title: 'Hole.io', category: 'IO', rating: '4.8', plays: '820K', icon: 'fa-circle-dot', desc: 'Control a black hole and swallow the entire city.',
+                mirrors: ['https://kbhgames.com/game/hole-io', 'https://hole-io.com/', 'https://holeio.org/']
+            },
+            {
+                id: 'smashhit', title: 'Smash Hit', category: 'Arcade', rating: '4.9', plays: '850K', icon: 'fa-wine-glass', desc: 'Throw steel balls to shatter glass obstacles in surreal dimensions.',
+                mirrors: ['https://kbhgames.com/game/smash-hit', 'https://smashhit.io/', 'https://math-vuls.github.io/smash-hit/']
+            },
+            {
+                id: 'helixjump', title: 'Helix Jump', category: 'Arcade', rating: '4.8', plays: '780K', icon: 'fa-helix', desc: 'Drop the bouncing ball down the rotating helix tower.',
+                mirrors: ['https://kbhgames.com/game/helix-jump', 'https://helixjump.io/', 'https://poki.com/en/g/helix-jump']
+            },
+            {
+                id: 'stack', title: 'Stack', category: 'Arcade', rating: '4.8', plays: '690K', icon: 'fa-layer-group', desc: 'Stack block slices as high as possible without falling.',
+                mirrors: ['https://kbhgames.com/game/stack', 'https://stackgame.io/', 'https://math-vuls.github.io/stack/']
+            },
+            {
+                id: 'crossyroad', title: 'Crossy Road', category: 'Arcade', rating: '4.9', plays: '1.2M', icon: 'fa-frog', desc: 'Cross roads, rivers, and train tracks safely.',
+                mirrors: ['https://kbhgames.com/game/crossy-road', 'https://crossyroad.io/', 'https://crossyroad.me/']
+            },
+            {
+                id: 'hardestgame', title: "World's Hardest Game", category: 'Puzzle', rating: '4.8', plays: '950K', icon: 'fa-brain', desc: 'Navigate the red square past blue circles without touching.',
+                mirrors: ['https://kbhgames.com/game/the-worlds-hardest-game', 'https://theworldshardestgame.com/', 'https://worldshardestgame.io/']
+            },
+            {
+                id: 'badpiggies', title: 'Bad Piggies', category: 'Puzzle', rating: '4.9', plays: '880K', icon: 'fa-piggy-bank', desc: 'Build contraptions to help the green pigs find eggs.',
+                mirrors: ['https://kbhgames.com/game/bad-piggies', 'https://badpiggies.io/', 'https://badpiggies.me/']
+            },
+            {
+                id: 'cuttherope', title: 'Cut the Rope', category: 'Puzzle', rating: '4.9', plays: '1.4M', icon: 'fa-scissors', desc: 'Cut ropes to feed candy to Om Nom.',
+                mirrors: ['https://kbhgames.com/game/cut-the-rope', 'https://cuttherope.io/', 'https://cuttherope.me/']
+            },
+            {
+                id: 'papasfreezeria', title: "Papa's Freezeria", category: 'Puzzle', rating: '4.9', plays: '1.8M', icon: 'fa-ice-cream', desc: 'Mix delicious sundaes and frozen treats for customers.',
+                mirrors: ['https://kbhgames.com/game/papas-freezeria', 'https://papasgames.io/freezeria', 'https://html5.gamedistribution.com/papas-freezeria/']
+            },
+            {
+                id: 'papaspizzeria', title: "Papa's Pizzeria", category: 'Puzzle', rating: '4.9', plays: '1.7M', icon: 'fa-pizza-slice', desc: 'Bake and slice custom pizzas for hungry townsfolk.',
+                mirrors: ['https://kbhgames.com/game/papas-pizzeria', 'https://papasgames.io/pizzeria', 'https://html5.gamedistribution.com/papas-pizzeria/']
+            },
+            {
+                id: 'papasburgeria', title: "Papa's Burgeria", category: 'Puzzle', rating: '4.9', plays: '1.6M', icon: 'fa-burger', desc: 'Grill patties and stack burgers to perfection.',
+                mirrors: ['https://kbhgames.com/game/papas-burgeria', 'https://papasgames.io/burgeria', 'https://html5.gamedistribution.com/papas-burgeria/']
+            },
+            {
+                id: 'papaspancakeria', title: "Papa's Pancakeria", category: 'Puzzle', rating: '4.8', plays: '1.3M', icon: 'fa-plate-wheat', desc: 'Flip golden pancakes and pour syrup with toppings.',
+                mirrors: ['https://kbhgames.com/game/papas-pancakeria', 'https://papasgames.io/pancakeria', 'https://html5.gamedistribution.com/papas-pancakeria/']
+            },
+            {
+                id: 'motox3m2', title: 'Moto X3M 2', category: 'Racing', rating: '4.8', plays: '650K', icon: 'fa-motorcycle', desc: 'Sequel with even more explosive stunts and hazards.',
+                mirrors: ['https://kbhgames.com/game/moto-x3m-2', 'https://ubg98.github.io/motox3m2/', 'https://moto-x3m.io/moto-x3m-2']
+            },
+            {
+                id: 'motox3mpool', title: 'Moto X3M Pool Party', category: 'Racing', rating: '4.9', plays: '720K', icon: 'fa-water-ladder', desc: 'Summer waterpark motorbike stunt adventure.',
+                mirrors: ['https://kbhgames.com/game/moto-x3m-pool-party', 'https://ubg98.github.io/motox3mpool/', 'https://moto-x3m.io/pool-party']
+            },
+            {
+                id: 'motox3mwinter', title: 'Moto X3M Winter', category: 'Racing', rating: '4.9', plays: '710K', icon: 'fa-snowflake', desc: 'Snowy winter wonderland motorbike challenges.',
+                mirrors: ['https://kbhgames.com/game/moto-x3m-winter', 'https://ubg98.github.io/motox3m-winter/', 'https://moto-x3m.io/winter']
+            },
+            {
+                id: 'vex6', title: 'Vex 6', category: 'Action', rating: '4.9', plays: '810K', icon: 'fa-person-running', desc: 'New acts, skins, and extreme platformer traps.',
+                mirrors: ['https://kbhgames.com/game/vex-6', 'https://vex6.io/', 'https://ubg33.github.io/vex6/']
+            },
+            {
+                id: 'vex5', title: 'Vex 5', category: 'Action', rating: '4.8', plays: '750K', icon: 'fa-person-running', desc: 'Challenge stage hazards with stickman agility.',
+                mirrors: ['https://kbhgames.com/game/vex-5', 'https://vex5.io/', 'https://ubg33.github.io/vex5/']
+            },
+            {
+                id: 'vex4', title: 'Vex 4', category: 'Action', rating: '4.8', plays: '690K', icon: 'fa-person-running', desc: 'Test your reflexes in fast-paced obstacle courses.',
+                mirrors: ['https://kbhgames.com/game/vex-4', 'https://vex4.io/', 'https://ubg33.github.io/vex4/']
+            },
+            {
+                id: 'ducklife2', title: 'Duck Life 2', category: 'Puzzle', rating: '4.8', plays: '520K', icon: 'fa-feather', desc: 'World championship training for your champion duck.',
+                mirrors: ['https://kbhgames.com/game/duck-life-2', 'https://ducklife2.io/', 'https://math-vuls.github.io/ducklife2/']
+            },
+            {
+                id: 'ducklife3', title: 'Duck Life 3', category: 'Puzzle', rating: '4.9', plays: '580K', icon: 'fa-dna', desc: 'Genetically engineered evolution duck racing.',
+                mirrors: ['https://kbhgames.com/game/duck-life-3', 'https://ducklife3.io/', 'https://math-vuls.github.io/ducklife3/']
+            },
+            {
+                id: 'ducklife4', title: 'Duck Life 4', category: 'Puzzle', rating: '4.9', plays: '640K', icon: 'fa-crown', desc: 'Explore cave tournaments and master flying skills.',
+                mirrors: ['https://kbhgames.com/game/duck-life-4', 'https://ducklife4.io/', 'https://math-vuls.github.io/ducklife4/']
+            },
+            {
+                id: 'run2', title: 'Run 2', category: 'Action', rating: '4.8', plays: '710K', icon: 'fa-cube', desc: 'Skate or run through planetary 3D platforms.',
+                mirrors: ['https://kbhgames.com/game/run-2', 'https://run2.io/', 'https://math-vuls.github.io/run2/']
+            },
+            {
+                id: 'learntofly', title: 'Learn to Fly', category: 'Arcade', rating: '4.8', plays: '600K', icon: 'fa-plane', desc: 'Help the brave penguin achieve flight mastery.',
+                mirrors: ['https://kbhgames.com/game/learn-to-fly', 'https://learntofly.io/', 'https://math-vuls.github.io/learntofly/']
+            },
+            {
+                id: 'learntofly2', title: 'Learn to Fly 2', category: 'Arcade', rating: '4.9', plays: '750K', icon: 'fa-rocket', desc: 'Upgrade gliders, rockets, and sleds for distance.',
+                mirrors: ['https://kbhgames.com/game/learn-to-fly-2', 'https://learntofly2.io/', 'https://math-vuls.github.io/learntofly2/']
+            },
+            {
+                id: 'learntofly3', title: 'Learn to Fly 3', category: 'Arcade', rating: '4.9', plays: '810K', icon: 'fa-space-shuttle', desc: 'Reach outer space with customizable spaceships.',
+                mirrors: ['https://kbhgames.com/game/learn-to-fly-3', 'https://learntofly3.io/', 'https://math-vuls.github.io/learntofly3/']
+            },
+            {
+                id: 'badicecream', title: 'Bad Ice Cream', category: 'Arcade', rating: '4.8', plays: '630K', icon: 'fa-ice-cream', desc: 'Break ice blocks and collect fruits while escaping monsters.',
+                mirrors: ['https://kbhgames.com/game/bad-ice-cream', 'https://badicecream.io/', 'https://math-vuls.github.io/badicecream/']
+            },
+            {
+                id: 'badicecream2', title: 'Bad Ice Cream 2', category: 'Arcade', rating: '4.8', plays: '590K', icon: 'fa-ice-cream', desc: 'More icy frozen fruit collection puzzles.',
+                mirrors: ['https://kbhgames.com/game/bad-ice-cream-2', 'https://badicecream2.io/', 'https://math-vuls.github.io/badicecream2/']
+            },
+            {
+                id: 'badicecream3', title: 'Bad Ice Cream 3', category: 'Arcade', rating: '4.9', plays: '640K', icon: 'fa-ice-cream', desc: 'Ice cream flavors battle freezing enemies for treats.',
+                mirrors: ['https://kbhgames.com/game/bad-ice-cream-3', 'https://badicecream3.io/', 'https://math-vuls.github.io/badicecream3/']
+            },
+            {
+                id: 'redball4', title: 'Red Ball 4', category: 'Puzzle', rating: '4.9', plays: '990K', icon: 'fa-circle-dot', desc: 'Roll, jump, and bounce past square minions.',
+                mirrors: ['https://kbhgames.com/game/red-ball-4', 'https://redball4.io/', 'https://math-vuls.github.io/redball4/']
+            },
+            {
+                id: 'bobtherobber', title: 'Bob the Robber', category: 'Puzzle', rating: '4.8', plays: '620K', icon: 'fa-mask', desc: 'Sneak past security cameras and guards in stealth heists.',
+                mirrors: ['https://kbhgames.com/game/bob-the-robber', 'https://bobtherobber.io/', 'https://math-vuls.github.io/bobtherobber/']
+            },
+            {
+                id: 'bobtherobber2', title: 'Bob the Robber 2', category: 'Puzzle', rating: '4.9', plays: '680K', icon: 'fa-user-secret', desc: 'Advanced burglary puzzles and gadget unlocks.',
+                mirrors: ['https://kbhgames.com/game/bob-the-robber-2', 'https://bobtherobber2.io/', 'https://math-vuls.github.io/bobtherobber2/']
+            },
+            {
+                id: 'snailbob', title: 'Snail Bob', category: 'Puzzle', rating: '4.8', plays: '510K', icon: 'fa-bug', desc: 'Guide the slow snail safely through hazard mechanisms.',
+                mirrors: ['https://kbhgames.com/game/snail-bob', 'https://snailbob.io/', 'https://math-vuls.github.io/snailbob/']
+            },
+            {
+                id: 'minecraftclassic', title: 'Minecraft Classic', category: 'IO', rating: '4.9', plays: '2.8M', icon: 'fa-cubes', desc: 'Original 2009 sandbox building experience.',
+                mirrors: ['https://kbhgames.com/game/minecraft-classic', 'https://classic.minecraft.net/', 'https://minecraftclassic.org/']
+            },
+            {
+                id: 'gunmayhem', title: 'Gun Mayhem', category: 'Action', rating: '4.9', plays: '890K', icon: 'fa-gun', desc: 'Explosive arena platform shooter for up to 4 players.',
+                mirrors: ['https://kbhgames.com/game/gun-mayhem', 'https://gunmayhem.io/', 'https://math-vuls.github.io/gunmayhem/']
+            },
+            {
+                id: 'gunmayhem2', title: 'Gun Mayhem 2', category: 'Action', rating: '4.9', plays: '940K', icon: 'fa-crosshairs', desc: 'More weapons, campaigns, and custom arenas.',
+                mirrors: ['https://kbhgames.com/game/gun-mayhem-2', 'https://gunmayhem2.io/', 'https://math-vuls.github.io/gunmayhem2/']
+            },
+            {
+                id: 'ageofwar', title: 'Age of War', category: 'Action', rating: '4.9', plays: '1.4M', icon: 'fa-shield', desc: 'Evolve your army from the Stone Age to the Future Age.',
+                mirrors: ['https://kbhgames.com/game/age-of-war', 'https://ageofwar.io/', 'https://math-vuls.github.io/ageofwar/']
+            },
+            {
+                id: 'ageofwar2', title: 'Age of War 2', category: 'Action', rating: '4.9', plays: '1.6M', icon: 'fa-sword', desc: 'Upgraded graphics, special attacks, and unit tech trees.',
+                mirrors: ['https://kbhgames.com/game/age-of-war-2', 'https://ageofwar2.io/', 'https://math-vuls.github.io/ageofwar2/']
+            },
+            {
+                id: 'bloonstd4', title: 'Bloons TD 4', category: 'Puzzle', rating: '4.9', plays: '1.1M', icon: 'fa-balloon', desc: 'Pop colorful balloons with tactical monkey tower placements.',
+                mirrors: ['https://kbhgames.com/game/bloons-td-4', 'https://bloonstd4.io/', 'https://math-vuls.github.io/bloonstd4/']
+            },
+            {
+                id: 'electricman2', title: 'Electric Man 2', category: 'Action', rating: '4.9', plays: '920K', icon: 'fa-bolt', desc: 'Stickman stick-figure martial arts stick fighting.',
+                mirrors: ['https://kbhgames.com/game/electric-man-2', 'https://electricman2.io/', 'https://math-vuls.github.io/electricman2/']
+            },
+            {
+                id: 'stickwar', title: 'Stick War', category: 'Action', rating: '4.9', plays: '1.3M', icon: 'fa-wand-magic-sparkles', desc: 'Command stickman nations in epic strategic combat.',
+                mirrors: ['https://kbhgames.com/game/stick-war', 'https://stickwar.io/', 'https://math-vuls.github.io/stickwar/']
+            },
+            {
+                id: 'raze', title: 'Raze', category: 'Action', rating: '4.9', plays: '880K', icon: 'fa-explosion', desc: 'Sci-fi arena shooter against aliens and robots.',
+                mirrors: ['https://kbhgames.com/game/raze', 'https://razegame.io/', 'https://math-vuls.github.io/raze/']
+            },
+            {
+                id: 'amongus', title: 'Among Us Online', category: 'IO', rating: '4.8', plays: '1.5M', icon: 'fa-user-astronaut', desc: 'Find the impostor or complete spaceship tasks.',
+                mirrors: ['https://kbhgames.com/game/among-us', 'https://amongusplay.online/', 'https://ubg98.github.io/amongus/']
+            },
+            {
+                id: 'paperminecraft', title: 'Paper Minecraft', category: 'IO', rating: '4.9', plays: '1.7M', icon: 'fa-cube', desc: '2D Scratch-based Minecraft survival sandbox.',
+                mirrors: ['https://kbhgames.com/game/paper-minecraft', 'https://paperminecraft.io/', 'https://scratch.mit.edu/projects/1012845/']
+            },
+            {
+                id: 'idleminer', title: 'Idle Miner Tycoon', category: 'Puzzle', rating: '4.8', plays: '710K', icon: 'fa-pickaxe', desc: 'Manage gold, coal, and diamond mining operations.',
+                mirrors: ['https://kbhgames.com/game/idle-miner-tycoon', 'https://idleminer.io/', 'https://html5.gamedistribution.com/idleminer/']
+            },
+            {
+                id: 'tinyfishing', title: 'Tiny Fishing', category: 'Arcade', rating: '4.8', plays: '690K', icon: 'fa-fish', desc: 'Catch rare deep sea fish and upgrade your fishing line.',
+                mirrors: ['https://kbhgames.com/game/tiny-fishing', 'https://tinyfishing.io/', 'https://html5.gamedistribution.com/tiny-fishing/']
+            },
+            {
+                id: 'bitlife', title: 'BitLife Life Simulator', category: 'Puzzle', rating: '4.9', plays: '1.9M', icon: 'fa-heart-pulse', desc: 'Make life choices from birth to your final legacy.',
+                mirrors: ['https://kbhgames.com/game/bitlife', 'https://bitlife.io/', 'https://bitlifesimulator.net/']
+            },
+            {
+                id: 'burritobison', title: 'Burrito Bison', category: 'Arcade', rating: '4.9', plays: '980K', icon: 'fa-bullseye', desc: 'Launch the bison into gummy bear lands to escape.',
+                mirrors: ['https://kbhgames.com/game/burrito-bison', 'https://burritobison.io/', 'https://math-vuls.github.io/burritobison/']
+            },
+            {
+                id: 'earntodie', title: 'Earn to Die', category: 'Racing', rating: '4.8', plays: '810K', icon: 'fa-car-burst', desc: 'Drive upgraded vehicles through hordes of zombies.',
+                mirrors: ['https://kbhgames.com/game/earn-to-die', 'https://earntodie.io/', 'https://earntodie.io/']
+            },
+            {
+                id: 'earntodie2', title: 'Earn to Die 2', category: 'Racing', rating: '4.9', plays: '950K', icon: 'fa-truck-monster', desc: 'Massive multi-stage zombie destruction road trip.',
+                mirrors: ['https://kbhgames.com/game/earn-to-die-2', 'https://earntodie2.io/', 'https://earntodie2.io/']
+            },
+            {
+                id: 'wheely', title: 'Wheely', category: 'Puzzle', rating: '4.8', plays: '540K', icon: 'fa-car-side', desc: 'Guide the cute red beetle car through puzzle obstacles.',
+                mirrors: ['https://kbhgames.com/game/wheely', 'https://wheelygame.io/', 'https://math-vuls.github.io/wheely/']
+            },
+            {
+                id: 'wheely2', title: 'Wheely 2', category: 'Puzzle', rating: '4.8', plays: '570K', icon: 'fa-car-side', desc: 'Rescue pink car love interest in physics puzzles.',
+                mirrors: ['https://kbhgames.com/game/wheely-2', 'https://wheely2.io/', 'https://math-vuls.github.io/wheely2/']
+            },
+            {
+                id: 'wheely3', title: 'Wheely 3', category: 'Puzzle', rating: '4.9', plays: '610K', icon: 'fa-car-side', desc: 'Find spare wheels in prehistoric adventure puzzles.',
+                mirrors: ['https://kbhgames.com/game/wheely-3', 'https://wheely3.io/', 'https://math-vuls.github.io/wheely3/']
+            },
+            {
+                id: 'fancypants', title: 'Fancy Pants Adventure', category: 'Action', rating: '4.9', plays: '1.2M', icon: 'fa-person-running', desc: 'Parkour through ink-drawn stickman adventures.',
+                mirrors: ['https://kbhgames.com/game/fancy-pants-adventure', 'https://fancypants.io/', 'https://math-vuls.github.io/fancypants/']
+            },
+            {
+                id: 'swordsandsouls', title: 'Swords and Souls', category: 'Action', rating: '4.9', plays: '890K', icon: 'fa-shield-sword', desc: 'Train hard in mini-games and battle arena gladiators.',
+                mirrors: ['https://kbhgames.com/game/swords-and-souls', 'https://swordsandsouls.io/', 'https://math-vuls.github.io/swordsandsouls/']
+            },
+            {
+                id: 'superfighters', title: 'Superfighters', category: 'Action', rating: '4.8', plays: '760K', icon: 'fa-gun', desc: 'Chaotic retro pixel shooter with explosive physics.',
+                mirrors: ['https://kbhgames.com/game/superfighters', 'https://superfighters.io/', 'https://math-vuls.github.io/superfighters/']
+            },
+            {
+                id: 'pottyracer', title: 'Potty Racer', category: 'Arcade', rating: '4.8', plays: '670K', icon: 'fa-toilet', desc: 'Upgrade your portable toilet with rocket thrusters.',
+                mirrors: ['https://kbhgames.com/game/potty-racer', 'https://pottyracer.io/', 'https://math-vuls.github.io/pottyracer/']
+            }
+        ];
+
+        let currentCategory = 'all';
+        let stealthActive = false;
+        let activeGame = null;
+        let currentMirrorIndex = 0;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Cyberpunk Intro Boot Screen Animation Sequence
+            let progress = 0;
+            const bar = document.getElementById('introProgressBar');
+            const status = document.getElementById('introStatusText');
+            const loader = document.getElementById('introLoader');
+
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 25) + 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    bar.style.width = '100%';
+                    status.innerText = 'Ready! Launching portal...';
+                    setTimeout(() => {
+                        loader.style.opacity = '0';
+                        setTimeout(() => {
+                            loader.remove();
+                        }, 700);
+                    }, 400);
+                } else {
+                    bar.style.width = progress + '%';
+                    if (progress < 40) status.innerText = `Loading secure protocols (${progress}%)...`;
+                    else if (progress < 80) status.innerText = `Syncing 100+ game mirrors (${progress}%)...`;
+                    else status.innerText = `Finalizing system checks (${progress}%)...`;
+                }
+            }, 160);
+
+            renderGames(games);
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === '`' || e.key === '~') {
+                    e.preventDefault();
+                    toggleStealthMode();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        });
+
+        function renderGames(gameList) {
+            const grid = document.getElementById('gamesGrid');
+            document.getElementById('gameCount').innerText = `Showing ${gameList.length} games`;
+            if (gameList.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-zinc-500"><i class="fa-solid fa-ghost text-4xl mb-3"></i><p>No games found matching your search.</p></div>`;
+                return;
+            }
+            grid.innerHTML = gameList.map(g => `
+                <div onclick="launchGame('${g.id}')" class="group bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 hover:border-accent-cyan/50 rounded-3xl p-5 cursor-pointer transition-all duration-300 glow-box flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-cyan/20 to-zinc-900 border border-accent-cyan/30 flex items-center justify-center text-accent-cyan text-2xl shadow-lg group-hover:scale-105 transition-transform">
+                                <i class="fa-solid ${g.icon}"></i>
+                            </div>
+                            <span class="px-3 py-1 bg-black border border-zinc-800 rounded-full text-xs font-semibold text-zinc-300">
+                                ${g.category}
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold text-zinc-100 group-hover:text-accent-cyan transition-colors">${g.title}</h3>
+                        <p class="text-xs text-zinc-400 mt-2 line-clamp-2">${g.desc}</p>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 mt-4 border-t border-zinc-800 text-xs text-zinc-400">
+                        <div class="flex items-center space-x-3">
+                            <span class="flex items-center space-x-1 text-amber-400"><i class="fa-solid fa-star"></i><strong class="text-zinc-200">${g.rating}</strong></span>
+                            <span class="flex items-center space-x-1"><i class="fa-solid fa-users text-accent-cyan"></i><span>${g.plays}</span></span>
+                        </div>
+                        <span class="px-3.5 py-1.5 bg-accent-cyan/10 text-accent-cyan font-bold rounded-xl group-hover:bg-accent-cyan group-hover:text-black transition-all">Play Now</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterGames() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = games.filter(g => {
+                const matchesSearch = g.title.toLowerCase().includes(query) || g.desc.toLowerCase().includes(query) || g.category.toLowerCase().includes(query);
+                const matchesCat = currentCategory === 'all' || g.category === currentCategory;
+                return matchesSearch && matchesCat;
+            });
+            renderGames(filtered);
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-zinc-900 hover:bg-zinc-800 text-zinc-300 whitespace-nowrap border border-zinc-800";
+            });
+            event.target.className = "cat-btn px-5 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all bg-accent-cyan text-black whitespace-nowrap shadow-md";
+            filterGames();
+        }
+
+        function scrollToGames() {
+            document.getElementById('gamesGrid').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function launchGame(id) {
+            const game = games.find(g => g.id === id);
+            if (!game) return;
+            activeGame = game;
+            currentMirrorIndex = 0;
+            updateMirrorButtons();
+            document.getElementById('modalGameTitle').innerText = game.title;
+            document.getElementById('gameIframe').src = game.mirrors[currentMirrorIndex];
+            document.getElementById('gameModal').classList.remove('hidden');
+        }
+
+        function switchMirror(index) {
+            if (!activeGame || !activeGame.mirrors[index]) return;
+            currentMirrorIndex = index;
+            updateMirrorButtons();
+            document.getElementById('gameIframe').src = activeGame.mirrors[currentMirrorIndex];
+        }
+
+        function updateMirrorButtons() {
+            for (let i = 0; i < 3; i++) {
+                const btn = document.getElementById(`mirrorBtn${i+1}`);
+                if (i === currentMirrorIndex) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-accent-cyan text-black";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-zinc-400 hover:text-white";
+                }
+            }
+        }
+
+        function closeGameModal() {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
+            document.getElementById('gameIframe').src = '';
+            document.getElementById('gameModal').classList.add('hidden');
+            activeGame = null;
+        }
+
+        function reloadActiveGame() {
+            if (!activeGame) return;
+            const iframe = document.getElementById('gameIframe');
+            const currentSrc = iframe.src;
+            iframe.src = '';
+            setTimeout(() => { iframe.src = currentSrc; }, 100);
+        }
+
+        function returnToHome() {
+            closeGameModal();
+        }
+
+        function toggleNativeFullScreen() {
+            const container = document.getElementById('modalIframeWrapper');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (container.requestFullscreen) {
+                    container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                } else if (container.mozRequestFullScreen) {
+                    container.mozRequestFullScreen();
+                } else if (container.msRequestFullscreen) {
+                    container.msRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+
+        function handleFullscreenChange() {
+            const icon = document.getElementById('fullscreenIcon');
+            const text = document.getElementById('fullscreenText');
+            const header = document.getElementById('modalHeaderBar');
+
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                icon.className = "fa-solid fa-compress";
+                text.innerText = "Exit Fullscreen";
+                header.style.display = 'none';
+            } else {
+                icon.className = "fa-solid fa-expand";
+                text.innerText = "Fullscreen";
+                header.style.display = 'flex';
+            }
+        }
+
+        function openRequestModal() { document.getElementById('requestModal').classList.remove('hidden'); }
+        function closeRequestModal() { document.getElementById('requestModal').classList.add('hidden'); }
+
+        async function submitGameRequest(event) {
+            event.preventDefault();
+            const title = document.getElementById('reqGameTitle').value.trim();
+            const btn = document.getElementById('requestSubmitBtn');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Sending Request...</span>`;
+
+            setTimeout(() => {
+                closeRequestModal();
+                document.getElementById('gameRequestForm').reset();
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-envelope-circle-check"></i><span>Send Request to Admin</span>`;
+                showToast('Request Dispatched!', `Successfully sent request for "${title}".`);
+            }, 800);
+        }
+
+        function toggleStealthMode() {
+            stealthActive = !stealthActive;
+            const btn = document.getElementById('stealthBtn');
+            if (stealthActive) {
+                document.title = 'Google Classroom';
+                let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+                link.type = 'image/x-icon'; link.rel = 'shortcut icon';
+                link.href = 'https://ssl.gstatic.com/classroom/ic_product_classroom_32.png';
+                document.getElementsByTagName('head')[0].appendChild(link);
+                btn.className = "flex items-center space-x-2 px-4 py-2 bg-accent-cyan/20 border border-accent-cyan text-accent-cyan rounded-xl text-xs font-semibold tracking-wide transition-all";
+                showToast('Classroom Cloak Active', 'Tab title & icon disguised as Google Classroom. (Press ~ to uncloak)');
+            } else {
+                document.title = 'Chocolates Tutoring | Academic & Practice Portal';
+                let link = document.querySelector("link[rel*='icon']");
+                if (link) link.remove();
+                btn.className = "flex items-center space-x-2 px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl text-xs font-semibold tracking-wide transition-all text-zinc-300 hover:text-white";
+                showToast('Cloak Disabled', 'Restored original tab title.');
+            }
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-32', 'opacity-0'); }, 3500);
+        }
+    </script>
+</body>
+</html>
